@@ -125,6 +125,64 @@ def quickSort(array):
     
 '''    
 # =============================================================================
+# #归并排序 
+# =============================================================================
+'''
+
+def mergeSort(array):
+    p=0
+    r=len(array)-1
+    if r<0:
+        return array
+    copyArray=[]
+    for i in range(len(array)):
+        copyArray.append(array[i])
+    mergeReSort(copyArray,p,r)
+    return copyArray
+        
+def mergeReSort(array,p,r):
+    #print(p,r)
+    if p==r:
+        #print(p)
+        return 
+    mid=int((r-p)/2)+p
+    mergeReSort(array,p,mid)
+    mergeReSort(array,mid+1,r)
+    merge(array,p,mid,r)
+    
+def merge(array,p,mid,r):
+    #需要额外空间
+    sortedArray=[]
+    i=p
+    j=mid+1
+    while True:
+        if i==mid+1 :
+            while j<=r:
+                sortedArray.append(array[j])
+                j+=1
+            break
+        if j==r+1 :
+            while i<=mid:
+                sortedArray.append(array[i])
+                i+=1
+            break
+        if array[i]<=array[j]:
+            sortedArray.append(array[i])
+            i+=1
+        else:
+            sortedArray.append(array[j])
+            j+=1
+    for item in range(p,r+1):
+        array[item]=sortedArray[item-p]
+                
+#t=[1,2,1,2,4,3,2]
+#mergeSort(t)
+
+    
+    
+
+'''    
+# =============================================================================
 # #计数排序    
 # =============================================================================
 '''        
@@ -300,37 +358,49 @@ def bucketSort(array):
 
 import time
 
+def checkSorted(sortedArray):
+    for i in range(len(sortedArray)-1):
+        if sortedArray[i]>sortedArray[i+1]:
+            return False
+    return True
+    
+    
+
+
 def timeCount(sortFunc,array):
     start=time.time()
     print('start {} now, {} is the length of array.'.format(sortFunc.__name__,len(array)))
     sortedArray=sortFunc(array)
     end=time.time()
     print('end {} now, {}s is the time we cost.'.format(sortFunc.__name__,end-start))
+    checked=checkSorted(sortedArray)
+    print(checked)
     return end-start
     
     
 import numpy as np
 from matplotlib import pyplot as plt
-#List=list(np.random.choice(range(100000),100000)) 
-'''   
+List=list(np.random.choice(range(10000),10000)) 
+ 
 sortedArray=timeCount(insertSort,List)    
 sortedArray=timeCount(heapSort,List) 
 sortedArray=timeCount(quickSort,List) 
 sortedArray=timeCount(countSort,List) 
 sortedArray=timeCount(radixIntSort,List) 
+sortedArray=timeCount(mergeSort,List) 
 sortedArray=timeCount(sorted,List)
-'''
 
+'''
 tryList=[insertSort,heapSort,quickSort,countSort,radixIntSort,sorted]
 valueList=[]
 for function in tryList:
     valueList.append([])
     for number in range(1,11):
-        List=list(np.random.choice(range(10000*number),10000*number)) 
+        List=list(range(50000*number,0,-1) )
         value=timeCount(function,List)
         valueList[-1].append(value)
 for (Values,i) in zip(valueList,range(len(valueList))):
-    plt.plot([n*10000 for n in range(1,11)],Values,label=tryList[i].__name__)
+    plt.plot([n*100 for n in range(1,11)],Values,label=tryList[i].__name__)
 plt.legend()
 plt.title('dense')
 plt.show()
@@ -360,3 +430,4 @@ for (Values,i) in zip(valueList,range(len(valueList))):
 plt.legend()
 plt.title('very dense')
 plt.show()
+'''
