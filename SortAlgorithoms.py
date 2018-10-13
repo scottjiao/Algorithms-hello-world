@@ -306,16 +306,57 @@ def timeCount(sortFunc,array):
     sortedArray=sortFunc(array)
     end=time.time()
     print('end {} now, {}s is the time we cost.'.format(sortFunc.__name__,end-start))
-    return sortedArray
+    return end-start
     
     
 import numpy as np
-List=list(np.random.choice(range(100000),100000)) 
-    
+from matplotlib import pyplot as plt
+#List=list(np.random.choice(range(100000),100000)) 
+'''   
 sortedArray=timeCount(insertSort,List)    
 sortedArray=timeCount(heapSort,List) 
 sortedArray=timeCount(quickSort,List) 
 sortedArray=timeCount(countSort,List) 
 sortedArray=timeCount(radixIntSort,List) 
 sortedArray=timeCount(sorted,List)
+'''
 
+tryList=[insertSort,heapSort,quickSort,countSort,radixIntSort,sorted]
+valueList=[]
+for function in tryList:
+    valueList.append([])
+    for number in range(1,11):
+        List=list(np.random.choice(range(10000*number),10000*number)) 
+        value=timeCount(function,List)
+        valueList[-1].append(value)
+for (Values,i) in zip(valueList,range(len(valueList))):
+    plt.plot([n*10000 for n in range(1,11)],Values,label=tryList[i].__name__)
+plt.legend()
+plt.title('dense')
+plt.show()
+
+valueList=[]
+for function in tryList:
+    valueList.append([])
+    for number in range(1,11):
+        List=list(np.random.choice(range(100000*number),10000*number)) 
+        value=timeCount(function,List)
+        valueList[-1].append(value)
+for (Values,i) in zip(valueList,range(len(valueList))):
+    plt.plot([n*10000 for n in range(1,11)],Values,label=tryList[i].__name__)
+plt.legend()
+plt.title('sparse')
+plt.show()
+
+valueList=[]
+for function in tryList:
+    valueList.append([])
+    for number in range(1,11):
+        List=list(np.random.choice(range(500*number),10000*number,replace=True)) 
+        value=timeCount(function,List)
+        valueList[-1].append(value)
+for (Values,i) in zip(valueList,range(len(valueList))):
+    plt.plot([n*10000 for n in range(1,11)],Values,label=tryList[i].__name__)
+plt.legend()
+plt.title('very dense')
+plt.show()
