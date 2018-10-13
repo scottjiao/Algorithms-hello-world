@@ -10,24 +10,20 @@ Created on Thu Oct 11 13:15:43 2018
 # =============================================================================
 '''
 def insertSort(array):
-    sortedArray=[0]*len(array)
+    sortedArray=[]
     i=0
     while True:
-        if array==[]:
+        if i>=len(array):
             break
-        newCard=array.pop()
-        #插入部分实现有改进空间
-        #case1 用数组来实现(将sortedArray视作基本数据结构)
-        for j in range(i):
-            if newCard<sortedArray[i-j]:
-                sortedArray[i-j+1]=sortedArray[i-j]                
-            else:
-                sortedArray[i-j+1]=newCard
-                i+=1
-                break
+        newCard=array[i]
+        #插入部分实现有改进空间(优化：二分插入)
+        #print(sortedArray,newCard)
+        insertElementSorted(sortedArray,newCard,0,len(sortedArray)-1)
+        #print(sortedArray,newCard)
+        i+=1
     return sortedArray
 #测试
-#insertSort([2,3,4,1,2,3])
+#insertSort(List)
 '''    
 # =============================================================================
 # #堆排序
@@ -73,16 +69,18 @@ def buildMaxHeap(heap):
 #buildMaxHeap(Heap([1,2,1,2,3,5],heapsize=6))        
         
 def heapSort(array):
-    heap=Heap(array,heapsize=len(array))    
+    heap=Heap(array,heapsize=len(array)) 
+    buildMaxHeap(heap)   
     for i in range(len(array),0,-1):        
-        buildMaxHeap(heap)
+        
         #print(heap)
         heap.heapSize-=1        
         temp=heap[i-1]
         heap[i-1]=heap[0]
         heap[0]=temp
+        maxHeapify(heap,0)
     return list(heap)        
-#a=[1,2,1,2,3,5]
+#a=[6,1,2,1,2,3,5,2,3,1,9,3,1]
 #heapSort(a)          
 '''            
 # =============================================================================
@@ -204,7 +202,7 @@ def radixSort(array):
         if len(i)>Max:
             Max=len(i)    
     dimension=Max   
-    for d in range(dimension):
+    for d in range(1,dimension+1):
         array=dimensionSort(array,d)
     #to do
     return array
@@ -244,20 +242,27 @@ def dimensionSort(array,d):
 '''        
 def insertElementSorted(sortedArray,element,p,r):
     #二分插入法
-    print(p,r)
+    #print(p,r)
+    #末尾索引等于长度减一的想法并不完全正确，当长度为零时会发生错误（此时长度等于末尾索引）
     if p<r:
         left=p+int((r-p)/2)
         right=left+1
-        print(right,left)
-        if left<=element and element<=right:
-            sortedArray.insert(left,element)
-        elif left>element:
+        #print(right,left)
+        if sortedArray[left]<=element and element<=sortedArray[right]:
+            sortedArray.insert(right,element)
+        elif sortedArray[left]>element:
             insertElementSorted(sortedArray,element,p,left)
-        elif right<element:
+        elif sortedArray[right]<element:
             insertElementSorted(sortedArray,element,right,r)
-    if p==r:
-        sortedArray.insert(p,element)
-        
+    elif p==r:
+        if element>sortedArray[p]:
+            sortedArray.insert(p+1,element)
+        else:
+            sortedArray.insert(p,element)
+    elif r==-1:
+        #一定是空集的时候
+        assert p==0
+        sortedArray.insert(0,element)
     
 def bucketSort(array):
     #假设数组是0-1分布的实数
@@ -272,7 +277,7 @@ def bucketSort(array):
         else:
             index=int(element/0.1)
         #print(element,index)
-        insertElementSorted(containers[index],element,0,len(containers[index]))
+        insertElementSorted(containers[index],element,0,len(containers[index])-1)
     #print(containers)
     sortedArray=[]    
     for i in range(len(containers)):
@@ -286,5 +291,31 @@ def bucketSort(array):
 
 #b=[0.33,0.43,0.53,0.66,0.12]
 #t=bucketSort(b)  
+    
+'''    
+# =============================================================================
+# #测试  
+# =============================================================================
+'''        
 
+import time
+
+def timeCount(sortFunc,array):
+    start=time.time()
+    print('start {} now, {} is the length of array.'.format(sortFunc.__name__,len(array)))
+    sortedArray=sortFunc(array)
+    end=time.time()
+    print('end {} now, {}s is the time we cost.'.format(sortFunc.__name__,end-start))
+    return sortedArray
+    
+    
+import numpy as np
+List=list(np.random.choice(range(100000),100000)) 
+    
+sortedArray=timeCount(insertSort,List)    
+sortedArray=timeCount(heapSort,List) 
+sortedArray=timeCount(quickSort,List) 
+sortedArray=timeCount(countSort,List) 
+sortedArray=timeCount(radixIntSort,List) 
+sortedArray=timeCount(sorted,List)
 
